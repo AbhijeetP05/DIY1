@@ -24,48 +24,38 @@ func (*ProductModel) TableName() string {
 	return "products"
 }
 
-func (p *ProductModel) GetProduct(db *gorm.DB) *ProductModel {
+func (p *ProductModel) GetProduct(db *gorm.DB) *gorm.DB {
 	result := db.First(&p)
-	if result == nil {
-		return nil
-	}
+
 	log.Println("GetProduct executed" + strconv.FormatInt(result.RowsAffected, 10))
-	return p
+	return result
 }
 
-func (p *ProductModel) GetProducts(db *gorm.DB, limit, start int) []ProductModel {
+func (p *ProductModel) GetProducts(db *gorm.DB, limit, start int) ([]ProductModel, *gorm.DB) {
 	var products []ProductModel
 	result := db.Model(ProductModel{}).Offset(start).Limit(limit).Find(&products)
-	if result == nil {
-		return nil
-	}
+
 	log.Println("GetProducts executed" + strconv.FormatInt(result.RowsAffected, 10))
-	return products
+	return products, result
 }
 
-func (p *ProductModel) CreateProduct(db *gorm.DB) *ProductModel {
+func (p *ProductModel) CreateProduct(db *gorm.DB) *gorm.DB {
 	result := db.Create(&p)
-	if result == nil {
-		return nil
-	}
+
 	log.Println("GetProducts executed" + strconv.FormatInt(result.RowsAffected, 10))
-	return p
+	return result
 }
 
-func (p *ProductModel) updateProduct(db *gorm.DB, newProduct *ProductModel) *ProductModel {
+func (p *ProductModel) updateProduct(db *gorm.DB, newProduct *ProductModel) *gorm.DB {
 	result := db.Model(&p).Updates(newProduct)
-	if result == nil {
-		return nil
-	}
+
 	log.Println("GetProducts executed" + strconv.FormatInt(result.RowsAffected, 10))
-	return p
+	return result
 }
 
-func (p *ProductModel) deleteProduct(db *gorm.DB) bool {
+func (p *ProductModel) deleteProduct(db *gorm.DB) *gorm.DB {
 	result := db.Delete(&p)
-	if result == nil {
-		return false
-	}
+
 	log.Println("GetProducts executed" + strconv.FormatInt(result.RowsAffected, 10))
-	return true
+	return result
 }

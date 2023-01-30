@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"go-mux/services"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
@@ -12,8 +13,9 @@ import (
 
 // App main app for the program to run, contains a gorm database instance and a router instance for routing
 type App struct {
-	DB     *gorm.DB
-	Router *mux.Router
+	DB       *gorm.DB
+	Router   *mux.Router
+	products services.IProducts
 }
 
 // Initialize This function initializes the given application which will initialize the database and routes
@@ -30,6 +32,8 @@ func (a *App) Initialize(host, port, username, password, dbname string) {
 	//p.GetProduct(a.DB)
 	//fmt.Println(p.ID, p.Name, p.Price)
 
+	a.products = services.NewProduct(a.DB)
+
 	a.InitializeRoutes()
 	log.Println("Routes Initialized")
 }
@@ -39,7 +43,7 @@ func (a *App) Run(host, port string) {
 	log.Fatal(http.ListenAndServe(addr, a.Router))
 }
 func (a *App) home(w http.ResponseWriter, r *http.Request) {
-	j := "{service: not available}"
+	j := "{services: not available}"
 	res, err := json.Marshal(j)
 	if err != nil {
 		println("Some error")
@@ -49,4 +53,5 @@ func (a *App) home(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) InitializeRoutes() {
 	a.Router.HandleFunc("/", a.home).Methods("GET")
+	a.Router.HandleFunc("/product/{id:[0-9]+}", a.products.GetProduct).Methods("GET")
 }
