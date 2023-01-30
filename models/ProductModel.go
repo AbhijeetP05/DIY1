@@ -20,6 +20,10 @@ type ProductModel struct {
 //	return &ProductModel{ID: ID, Name: Name, Price: Price}
 //}
 
+func (*ProductModel) TableName() string {
+	return "products"
+}
+
 func (p *ProductModel) GetProduct(db *gorm.DB) *ProductModel {
 	result := db.First(&p)
 	if result == nil {

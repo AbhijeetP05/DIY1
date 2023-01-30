@@ -26,6 +26,9 @@ func (a *App) Initialize(host, port, username, password, dbname string) {
 	}
 	log.Println("Database Initialized")
 	a.Router = mux.NewRouter()
+	//p := models.ProductModel{ID: 2}
+	//p.GetProduct(a.DB)
+	//fmt.Println(p.ID, p.Name, p.Price)
 
 	a.InitializeRoutes()
 	log.Println("Routes Initialized")
