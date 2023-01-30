@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"go-mux/models"
 	"go-mux/services"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -33,7 +34,12 @@ func (a *App) Initialize(host, port, username, password, dbname string) {
 	//fmt.Println(p.ID, p.Name, p.Price)
 
 	a.products = services.NewProduct(a.DB)
-
+	storeModel := models.StoreModel{StoreId: 1}
+	fmt.Println("Executing Store model")
+	prod := storeModel.GetProductsInStore(a.DB, 10, 0)
+	for i := 0; i < len(prod); i++ {
+		fmt.Println(prod[i].Name)
+	}
 	a.InitializeRoutes()
 	log.Println("Routes Initialized")
 }
