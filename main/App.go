@@ -57,4 +57,5 @@ func (a *App) InitializeRoutes() {
 	a.Router.HandleFunc("/product", a.products.CreateProduct).Methods("POST")
 	a.Router.HandleFunc("/product/{id:[0-9]+}", a.products.GetProduct).Methods("GET")
 	a.Router.HandleFunc("/product/{id:[0-9]+}", a.products.UpdateProduct).Methods("PUT")
+	a.Router.HandleFunc("/product/{id:[0-9]+}", a.products.DeleteProduct).Methods("DELETE")
 }

@@ -108,8 +108,30 @@ func (p *Products) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Products) DeleteProduct(w http.ResponseWriter, r *http.Request) {
-	//TODO implement me
-	panic("implement me")
+	// get initial product
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+		return
+	}
+	product := models.ProductModel{ID: uint(id)}
+	result := product.GetProduct(p.conn)
+	if result.Error != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, result.Error.Error())
+		return
+	}
+	if result.RowsAffected == 0 {
+		utils.RespondWithError(w, http.StatusNotFound, "Product not found")
+		return
+	}
+
+	// delete the product
+	result = product.DeleteProduct(p.conn)
+	if result.Error != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, result.Error.Error())
+	}
+	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
 }
 
 func NewProduct(conn *gorm.DB) *Products {
