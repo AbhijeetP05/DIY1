@@ -53,5 +53,8 @@ func (a *App) home(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) InitializeRoutes() {
 	a.Router.HandleFunc("/", a.home).Methods("GET")
+	a.Router.HandleFunc("/products", a.products.GetProducts).Methods("POST")
+	a.Router.HandleFunc("/product", a.products.CreateProduct).Methods("POST")
 	a.Router.HandleFunc("/product/{id:[0-9]+}", a.products.GetProduct).Methods("GET")
+	a.Router.HandleFunc("/product/{id:[0-9]+}", a.products.UpdateProduct).Methods("PUT")
 }

@@ -1,6 +1,7 @@
 package services
 
 import (
+	"encoding/json"
 	"github.com/gorilla/mux"
 	"go-mux/models"
 	"go-mux/utils"
@@ -17,9 +18,9 @@ type Products struct {
 type IProducts interface {
 	GetProduct(w http.ResponseWriter, r *http.Request)
 	GetProducts(w http.ResponseWriter, r *http.Request)
-	createProduct(w http.ResponseWriter, r *http.Request)
-	updateProduct(w http.ResponseWriter, r *http.Request)
-	deleteProduct(w http.ResponseWriter, r *http.Request)
+	CreateProduct(w http.ResponseWriter, r *http.Request)
+	UpdateProduct(w http.ResponseWriter, r *http.Request)
+	DeleteProduct(w http.ResponseWriter, r *http.Request)
 }
 
 func (p *Products) GetProduct(w http.ResponseWriter, r *http.Request) {
@@ -52,20 +53,61 @@ func (p *Products) GetProducts(w http.ResponseWriter, r *http.Request) {
 	} else {
 		utils.RespondWithJSON(w, http.StatusOK, products)
 	}
-
 }
 
-func (p *Products) createProduct(w http.ResponseWriter, r *http.Request) {
-	//TODO implement me
-	panic("implement me")
+func (p *Products) CreateProduct(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
+	var product models.ProductModel
+	if err := decoder.Decode(&product); err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	defer r.Body.Close()
+	result := product.CreateProduct(p.conn)
+	if result.Error != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, result.Error.Error())
+		return
+	}
+	utils.RespondWithJSON(w, http.StatusOK, product)
 }
 
-func (p *Products) updateProduct(w http.ResponseWriter, r *http.Request) {
-	//TODO implement me
-	panic("implement me")
+func (p *Products) UpdateProduct(w http.ResponseWriter, r *http.Request) {
+
+	// get initial product
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+		return
+	}
+	product := models.ProductModel{ID: uint(id)}
+	result := product.GetProduct(p.conn)
+	if result.Error != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, result.Error.Error())
+		return
+	}
+	if result.RowsAffected == 0 {
+		utils.RespondWithError(w, http.StatusNotFound, "Product not found")
+		return
+	}
+
+	// get the updated product
+	var newProduct models.ProductModel
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&newProduct); err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	result = product.UpdateProduct(p.conn, &newProduct)
+	if result.Error != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, result.Error.Error())
+		return
+	}
+	utils.RespondWithJSON(w, http.StatusOK, product)
 }
 
-func (p *Products) deleteProduct(w http.ResponseWriter, r *http.Request) {
+func (p *Products) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	//TODO implement me
 	panic("implement me")
 }
