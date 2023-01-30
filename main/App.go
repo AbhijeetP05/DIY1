@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
 	"gorm.io/driver/postgres"
@@ -25,6 +26,7 @@ func (a *App) Initialize(host, port, username, password, dbname string) {
 	}
 	log.Println("Database Initialized")
 	a.Router = mux.NewRouter()
+
 	a.InitializeRoutes()
 	log.Println("Routes Initialized")
 }
@@ -33,7 +35,15 @@ func (a *App) Run(host, port string) {
 	addr := fmt.Sprintf("%s:%s", host, port)
 	log.Fatal(http.ListenAndServe(addr, a.Router))
 }
+func (a *App) home(w http.ResponseWriter, r *http.Request) {
+	j := "{service: not available}"
+	res, err := json.Marshal(j)
+	if err != nil {
+		println("Some error")
+	}
+	w.Write(res)
+}
 
 func (a *App) InitializeRoutes() {
-
+	a.Router.HandleFunc("/", a.home).Methods("GET")
 }
