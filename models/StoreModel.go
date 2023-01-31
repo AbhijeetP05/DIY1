@@ -19,6 +19,7 @@ func (s *StoreModel) GetProductsInStore(db *gorm.DB, limit, start int) []Product
 
 	if result.Error != nil {
 		fmt.Println("Some error occurred")
+		return nil
 	}
 	tx := db.Begin()
 	for i := 0; i < len(productsInStore); i++ {
@@ -38,7 +39,7 @@ func (s *StoreModel) GetProductsInStore(db *gorm.DB, limit, start int) []Product
 	return products
 }
 
-func (s *StoreModel) AddProducts(db gorm.DB, products []ProductModel) bool {
+func (s *StoreModel) AddProducts(db *gorm.DB, products []ProductModel) bool {
 
 	tx := db.Begin()
 	for i := 0; i < len(products); i++ {
